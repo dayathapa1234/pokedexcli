@@ -24,8 +24,8 @@ func CommandMap(cfg *pokeapi.Config) error {
 
 func CommandMapb(cfg *pokeapi.Config) error {
 	if cfg.PreviousLocationURL == nil {
-		fmt.Println("You're on the first page.");
-		return nil;
+		fmt.Println("You're on the first page.")
+		return nil
 	}
 
 	resp, err := pokeapi.FetchLocationAreas(*cfg.PreviousLocationURL)

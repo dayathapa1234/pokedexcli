@@ -5,13 +5,27 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+
+	"github.com/dayathapa1234/pokedexcli/internal/pokecache"
 )
 
 // Assign the real implementation to a function variable
-var FetchLocationAreas = fetchLocationAreas
+var (
+	FetchLocationAreas = fetchLocationAreas
+	Cache              *pokecache.Cache
+)
 
 // The actual function (unexported)
 func fetchLocationAreas(url string) (LocationAreaResponse, error) {
+	if Cache != nil {
+		if data, ok := Cache.Get(url); ok {
+			var cached LocationAreaResponse
+			if err := json.Unmarshal(data, &cached); err == nil {
+				return cached, nil
+			}
+		}
+	}
+
 	res, err := http.Get(url)
 	if err != nil {
 		return LocationAreaResponse{}, fmt.Errorf("request error: %w", err)
@@ -31,6 +45,11 @@ func fetchLocationAreas(url string) (LocationAreaResponse, error) {
 	if err := json.Unmarshal(body, &data); err != nil {
 		return LocationAreaResponse{}, fmt.Errorf("unmarshal error: %w", err)
 	}
+
+	if Cache != nil {
+		Cache.Add(url, body)
+	}
+
 	return data, nil
 }
 

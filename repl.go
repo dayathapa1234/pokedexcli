@@ -5,24 +5,26 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/dayathapa1234/pokedexcli/commands"
 	"github.com/dayathapa1234/pokedexcli/internal/pokeapi"
+	"github.com/dayathapa1234/pokedexcli/internal/pokecache"
 )
 
 type cliCommand struct {
 	name        string
 	description string
-	callback    func(*pokeapi.Config) error 
+	callback    func(*pokeapi.Config) error
 }
 
 var command = map[string]cliCommand{}
 
 func init() {
 	command["map"] = cliCommand{
-		name: "map",
+		name:        "map",
 		description: "Explore 20 Pokémon location areas",
-		callback: commands.CommandMap,
+		callback:    commands.CommandMap,
 	}
 	command["help"] = cliCommand{
 		name:        "help",
@@ -35,15 +37,18 @@ func init() {
 		callback:    commandExit,
 	}
 	command["mapb"] = cliCommand{
-		name:  "mapb",
+		name:        "mapb",
 		description: "Go back to the previous 20 Pokémon location areas",
-		callback: commands.CommandMapb,
+		callback:    commands.CommandMapb,
 	}
 }
 
 func startRepl() {
 	scanner := bufio.NewScanner(os.Stdin)
-	cfg := &pokeapi.Config{}
+	cache := pokecache.NewCache(5 * time.Second)
+	pokeapi.Cache = cache
+	cfg := &pokeapi.Config{Cache: cache}
+
 	for {
 		fmt.Print("Pokedex > ")
 		scanner.Scan()
