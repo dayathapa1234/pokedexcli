@@ -1,11 +1,15 @@
 package pokecache
 
+// Unit tests for the in-memory caching layer. These tests live in the same
+// package so that they can access unexported types and functions.
+
 import (
 	"fmt"
 	"testing"
 	"time"
 )
 
+// TestAddGet ensures that values added to the cache can be retrieved by key.
 func TestAddGet(t *testing.T) {
 	const interval = 5 * time.Second
 	cases := []struct {
@@ -33,6 +37,8 @@ func TestAddGet(t *testing.T) {
 	}
 }
 
+// TestReapLoop verifies that entries older than the cache interval are removed
+// by the background reaper.
 func TestReapLoop(t *testing.T) {
 	const baseTime = 5 * time.Millisecond
 	const waitTime = baseTime + 5*time.Millisecond
