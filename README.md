@@ -1,4 +1,5 @@
 # pokedexcli
+
 This project provides a small interactive command line interface for
 exploring Pokémon location areas using the [PokéAPI](https://pokeapi.co/).
 It is implemented in Go and exposes a simple REPL with a few commands for
@@ -16,8 +17,9 @@ go run .
 ## Available Commands
 
 - `help` - print a list of commands with a short description
-- `map`  - list the next 20 Pokémon location areas
+- `map` - list the next 20 Pokémon location areas
 - `mapb` - go back to the previous page of location areas
+- `explore <area>` - list Pokémon found in the specified location area
 - `exit` - quit the application
 
 The `map` and `mapb` commands fetch data from the PokéAPI, so they require
@@ -34,7 +36,7 @@ go test ./...
 
 ## Project Layout
 
-- `main.go`           – program entry point starting the REPL
-- `repl.go`           – command loop implementation and command registry
-- `commands/`         – individual command handlers
-- `internal/pokeapi`  – minimal client used to query the PokéAPI
+- `main.go` – program entry point starting the REPL
+- `repl.go` – command loop implementation and command registry
+- `commands/` – individual command handlers
+- `internal/pokeapi` – minimal client used to query the PokéAPI

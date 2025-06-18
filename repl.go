@@ -15,7 +15,7 @@ import (
 type cliCommand struct {
 	name        string
 	description string
-	callback    func(*pokeapi.Config) error
+	callback    func(*pokeapi.Config, []string) error
 }
 
 var command = map[string]cliCommand{}
@@ -41,6 +41,11 @@ func init() {
 		description: "Go back to the previous 20 Pokémon location areas",
 		callback:    commands.CommandMapb,
 	}
+	command["explore"] = cliCommand{
+		name:        "explore",
+		description: "List Pokémon in the specified area",
+		callback:    commands.CommandExplore,
+	}
 }
 
 func startRepl() {
@@ -65,7 +70,7 @@ func startRepl() {
 			continue
 		}
 
-		if err := cmd.callback(cfg); err != nil {
+		if err := cmd.callback(cfg, words[1:]); err != nil {
 			fmt.Printf("Error: %v\n", err)
 		}
 	}
@@ -77,13 +82,13 @@ func cleanInput(text string) []string {
 	return strings.Fields(text)
 }
 
-func commandExit(cfg *pokeapi.Config) error {
+func commandExit(cfg *pokeapi.Config, _ []string) error {
 	fmt.Println("Closing the Pokedex... Goodbye!")
 	os.Exit(0)
 	return nil
 }
 
-func commandHelp(cfg *pokeapi.Config) error {
+func commandHelp(cfg *pokeapi.Config, _ []string) error {
 	fmt.Println("Welcome to the Pokedex!")
 	fmt.Println("Usage:")
 	for _, cmd := range command {

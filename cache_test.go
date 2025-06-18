@@ -1,12 +1,15 @@
-package pokecache
+package main
 
-// Unit tests for the in-memory caching layer. These tests live in the same
-// package so that they can access unexported types and functions.
+// Unit tests for the pokecache in-memory caching layer. They run in the main
+// package and import the pokecache implementation to test its exported
+// functionality.
 
 import (
 	"fmt"
 	"testing"
 	"time"
+
+	"github.com/dayathapa1234/pokedexcli/internal/pokecache"
 )
 
 // TestAddGet ensures that values added to the cache can be retrieved by key.
@@ -22,7 +25,7 @@ func TestAddGet(t *testing.T) {
 
 	for i, c := range cases {
 		t.Run(fmt.Sprintf("Test case %v", i), func(t *testing.T) {
-			cache := NewCache(interval)
+			cache := pokecache.NewCache(interval)
 			cache.Add(c.key, c.val)
 			val, ok := cache.Get(c.key)
 			if !ok {
@@ -42,7 +45,7 @@ func TestAddGet(t *testing.T) {
 func TestReapLoop(t *testing.T) {
 	const baseTime = 5 * time.Millisecond
 	const waitTime = baseTime + 5*time.Millisecond
-	cache := NewCache(baseTime)
+	cache := pokecache.NewCache(baseTime)
 	cache.Add("https://example.com", []byte("testdata"))
 
 	if _, ok := cache.Get("https://example.com"); !ok {

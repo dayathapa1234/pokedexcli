@@ -110,7 +110,7 @@ func TestCommandMap(t *testing.T) {
 	// Setup and run
 	cfg := &pokeapi.Config{}
 	output := captureOutput(func() {
-		err := commands.CommandMap(cfg)
+		err := commands.CommandMap(cfg, nil)
 		if err != nil {
 			t.Errorf("Unexpected error: %v", err)
 		}
@@ -131,7 +131,7 @@ func TestCommandMapb_FirstPage(t *testing.T) {
 	cfg := &pokeapi.Config{PreviousLocationURL: nil}
 
 	out := captureOutput(func() {
-		err := commands.CommandMapb(cfg)
+		err := commands.CommandMapb(cfg, nil)
 		if err != nil {
 			t.Errorf("CommandMapb returned error on first page: %v", err)
 		}
@@ -149,7 +149,7 @@ func TestCommandMapb(t *testing.T) {
 	cfg := &pokeapi.Config{PreviousLocationURL: pokeapi.StringPtr("https://pokeapi.co/api/v2/location-area?offset=0&limit=20")}
 
 	out := captureOutput(func() {
-		err := commands.CommandMapb(cfg)
+		err := commands.CommandMapb(cfg, nil)
 		if err != nil {
 			t.Errorf("CommandMapb returned error: %v", err)
 		}
