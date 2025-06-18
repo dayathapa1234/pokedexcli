@@ -13,6 +13,7 @@ import (
 var (
 	FetchLocationAreas = fetchLocationAreas
 	FetchLocationArea  = fetchLocationArea
+	FetchPokemon       = fetchPokemon
 	Cache              *pokecache.Cache
 )
 
@@ -84,6 +85,45 @@ func fetchLocationArea(url string) (LocationAreaExploreResponse, error) {
 	var data LocationAreaExploreResponse
 	if err := json.Unmarshal(body, &data); err != nil {
 		return LocationAreaExploreResponse{}, fmt.Errorf("unmarshal error: %w", err)
+	}
+
+	if Cache != nil {
+		Cache.Add(url, body)
+	}
+
+	return data, nil
+}
+
+// fetchPokemon retrieves information about a single Pokémon by URL. Results are
+// cached in the global Cache so repeated calls are fast.
+func fetchPokemon(url string) (Pokemon, error) {
+	if Cache != nil {
+		if data, ok := Cache.Get(url); ok {
+			var cached Pokemon
+			if err := json.Unmarshal(data, &cached); err == nil {
+				return cached, nil
+			}
+		}
+	}
+
+	res, err := http.Get(url)
+	if err != nil {
+		return Pokemon{}, fmt.Errorf("request error: %w", err)
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode != http.StatusOK {
+		return Pokemon{}, fmt.Errorf("bad status: %s", res.Status)
+	}
+
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return Pokemon{}, fmt.Errorf("read error: %w", err)
+	}
+
+	var data Pokemon
+	if err := json.Unmarshal(body, &data); err != nil {
+		return Pokemon{}, fmt.Errorf("unmarshal error: %w", err)
 	}
 
 	if Cache != nil {

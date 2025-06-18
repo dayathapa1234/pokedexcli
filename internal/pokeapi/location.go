@@ -6,6 +6,7 @@ type Config struct {
 	NextLocationURL     *string
 	PreviousLocationURL *string
 	Cache               *pokecache.Cache
+	CaughtPokemon       map[string]Pokemon
 }
 
 type LocationAreaResult struct {

@@ -46,13 +46,18 @@ func init() {
 		description: "List Pokémon in the specified area",
 		callback:    commands.CommandExplore,
 	}
+	command["catch"] = cliCommand{
+		name:        "catch",
+		description: "Attempt to catch the specified Pokémon",
+		callback:    commands.CommandCatch,
+	}
 }
 
 func startRepl() {
 	scanner := bufio.NewScanner(os.Stdin)
 	cache := pokecache.NewCache(5 * time.Second)
 	pokeapi.Cache = cache
-	cfg := &pokeapi.Config{Cache: cache}
+	cfg := &pokeapi.Config{Cache: cache, CaughtPokemon: make(map[string]pokeapi.Pokemon)}
 
 	for {
 		fmt.Print("Pokedex > ")

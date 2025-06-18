@@ -6,6 +6,7 @@ package main
 
 import (
 	"bytes"
+	"math/rand"
 	"os"
 	"strings"
 	"testing"
@@ -160,5 +161,86 @@ func TestCommandMapb(t *testing.T) {
 	}
 	if cfg.NextLocationURL == nil || cfg.PreviousLocationURL == nil {
 		t.Error("Config next/previous URL not updated in mapb")
+	}
+}
+
+// TestCommandExplore checks that the explore command lists Pokémon returned by the API.
+func TestCommandExplore(t *testing.T) {
+	original := pokeapi.FetchLocationArea
+	defer func() { pokeapi.FetchLocationArea = original }()
+
+	pokeapi.FetchLocationArea = func(url string) (pokeapi.LocationAreaExploreResponse, error) {
+		return pokeapi.LocationAreaExploreResponse{
+			PokemonEncounters: []pokeapi.PokemonEncounter{
+				{Pokemon: pokeapi.NamedResource{Name: "pikachu"}},
+				{Pokemon: pokeapi.NamedResource{Name: "bulbasaur"}},
+			},
+		}, nil
+	}
+
+	cfg := &pokeapi.Config{}
+	out := captureOutput(func() {
+		err := commands.CommandExplore(cfg, []string{"test-area"})
+		if err != nil {
+			t.Errorf("CommandExplore returned error: %v", err)
+		}
+	})
+
+	for _, name := range []string{"pikachu", "bulbasaur"} {
+		if !strings.Contains(out, name) {
+			t.Errorf("expected output to contain %q", name)
+		}
+	}
+}
+
+// mockFetchPokemon returns a deterministic Pokemon for catch tests.
+func mockFetchPokemon(url string) (pokeapi.Pokemon, error) {
+	return pokeapi.Pokemon{Name: "pikachu", BaseExperience: 100}, nil
+}
+
+// TestCommandCatchSuccess verifies that a Pokemon can be caught when the random
+// roll is favorable.
+func TestCommandCatchSuccess(t *testing.T) {
+	original := pokeapi.FetchPokemon
+	defer func() { pokeapi.FetchPokemon = original }()
+	pokeapi.FetchPokemon = mockFetchPokemon
+	commands.RandIntn = func(n int) int { return 10 }
+	defer func() { commands.RandIntn = rand.Intn }()
+
+	cfg := &pokeapi.Config{CaughtPokemon: make(map[string]pokeapi.Pokemon)}
+	out := captureOutput(func() {
+		err := commands.CommandCatch(cfg, []string{"pikachu"})
+		if err != nil {
+			t.Errorf("Unexpected error: %v", err)
+		}
+	})
+
+	if !strings.Contains(out, "was caught") {
+		t.Errorf("Expected catch success message, got: %q", out)
+	}
+	if _, ok := cfg.CaughtPokemon["pikachu"]; !ok {
+		t.Error("Pokemon not stored in pokedex on success")
+	}
+}
+
+// TestCommandCatchEscape verifies that a Pokemon can escape on an unfavorable roll.
+func TestCommandCatchEscape(t *testing.T) {
+	pokeapi.FetchPokemon = mockFetchPokemon
+	commands.RandIntn = func(n int) int { return 90 }
+	defer func() { commands.RandIntn = rand.Intn }()
+
+	cfg := &pokeapi.Config{CaughtPokemon: make(map[string]pokeapi.Pokemon)}
+	out := captureOutput(func() {
+		err := commands.CommandCatch(cfg, []string{"pikachu"})
+		if err != nil {
+			t.Errorf("Unexpected error: %v", err)
+		}
+	})
+
+	if !strings.Contains(out, "escaped") {
+		t.Errorf("Expected escape message, got: %q", out)
+	}
+	if len(cfg.CaughtPokemon) != 0 {
+		t.Error("Pokemon should not be added to pokedex on escape")
 	}
 }
