@@ -7,6 +7,7 @@ Pokedex CLI is a lightweight command line application for exploring data from th
 - Browse location areas with `map` and `mapb` commands
 - Explore a specific location with `explore <area>`
 - Attempt to catch Pokémon with `catch <name>`
+- Review caught Pokémon with `pokedex`
 - Built-in caching layer to minimize repeated API requests
 - Small REPL style interface implemented in pure Go
 
@@ -37,6 +38,7 @@ Once started you will see the prompt `Pokedex >`. The following commands are ava
 - `mapb` &mdash; show the previous page
 - `explore <area>` &mdash; list the Pokémon that can be encountered in `area`
 - `catch <pokemon>` &mdash; try your luck at catching a Pokémon
+- `pokedex` &mdash; list Pokémon you have caught
 - `exit` &mdash; quit the program
 
 Pagination state is kept between commands so you can page forward and backward through the location list. Network responses are cached for a short period so repeated exploration of the same areas is quick.
@@ -56,6 +58,9 @@ Found Pokemon:
 Pokedex > catch bibarel
 Throwing a Pokeball at bibarel...
 bibarel was caught!
+Pokedex > pokedex
+Your Pokedex:
+ - bibarel
 ```
 
 ## Running Tests

@@ -56,6 +56,11 @@ func init() {
 		description: "Inspect a caught Pokémon's stats",
 		callback:    commands.CommandInspect,
 	}
+	command["pokedex"] = cliCommand{
+		name:        "pokedex",
+		description: "List all caught Pokémon",
+		callback:    commands.CommandPokedex,
+	}
 }
 
 func startRepl() {

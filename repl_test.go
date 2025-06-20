@@ -244,3 +244,36 @@ func TestCommandCatchEscape(t *testing.T) {
 		t.Error("Pokemon should not be added to pokedex on escape")
 	}
 }
+
+// TestCommandPokedex_Empty ensures the pokedex command informs the user when no Pokémon have been caught.
+func TestCommandPokedex_Empty(t *testing.T) {
+	cfg := &pokeapi.Config{CaughtPokemon: make(map[string]pokeapi.Pokemon)}
+	out := captureOutput(func() {
+		err := commands.CommandPokedex(cfg, nil)
+		if err != nil {
+			t.Errorf("Unexpected error: %v", err)
+		}
+	})
+	if !strings.Contains(out, "empty") {
+		t.Errorf("Expected empty message, got: %q", out)
+	}
+}
+
+// TestCommandPokedex_List verifies that pokedex lists caught Pokémon names.
+func TestCommandPokedex_List(t *testing.T) {
+	cfg := &pokeapi.Config{CaughtPokemon: map[string]pokeapi.Pokemon{
+		"pikachu":   {Name: "pikachu"},
+		"bulbasaur": {Name: "bulbasaur"},
+	}}
+	out := captureOutput(func() {
+		err := commands.CommandPokedex(cfg, nil)
+		if err != nil {
+			t.Errorf("Unexpected error: %v", err)
+		}
+	})
+	for _, name := range []string{"pikachu", "bulbasaur"} {
+		if !strings.Contains(out, name) {
+			t.Errorf("Expected output to contain %q", name)
+		}
+	}
+}
