@@ -51,6 +51,11 @@ func init() {
 		description: "Attempt to catch the specified Pokémon",
 		callback:    commands.CommandCatch,
 	}
+	command["inspect"] = cliCommand{
+		name:        "inspect",
+		description: "Inspect a caught Pokémon's stats",
+		callback:    commands.CommandInspect,
+	}
 }
 
 func startRepl() {
